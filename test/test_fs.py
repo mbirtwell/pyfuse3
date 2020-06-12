@@ -23,7 +23,7 @@ import errno
 import stat
 import time
 import logging
-import trio
+import asyncio
 import threading
 from util import fuse_test_marker, wait_for_mount, umount, cleanup
 
@@ -221,7 +221,7 @@ class Fs(pyfuse3.Operations):
             raise FUSEError(errno.EINVAL)
 
         # Make sure that the request is pending before we return
-        await trio.sleep(0.1)
+        await asyncio.sleep(0.1)
 
 def run_fs(mountpoint, cross_process):
     # Logging (note that we run in a new process, so we can't
@@ -241,6 +241,6 @@ def run_fs(mountpoint, cross_process):
     fuse_options.add('fsname=pyfuse3_testfs')
     pyfuse3.init(testfs, mountpoint, fuse_options)
     try:
-        trio.run(pyfuse3.main)
+        asyncio.get_event_loop().run_until_complete(pyfuse3.main)
     finally:
         pyfuse3.close()

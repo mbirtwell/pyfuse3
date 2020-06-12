@@ -24,7 +24,7 @@ before, please read the `Trio tutorial`_ first.
 
 An instance of the operations class is passed to `pyfuse3.init` to
 mount the file system. To enter the request handling loop, run
-`pyfuse3.main` in a trio event loop. This function will return when
+`pyfuse3.main` in a asyncio event loop. This function will return when
 the file system should be unmounted again, which is done by calling
 `pyfuse3.close`.
 

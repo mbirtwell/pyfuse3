@@ -40,7 +40,7 @@ import logging
 from collections import defaultdict
 from pyfuse3 import FUSEError
 from argparse import ArgumentParser
-import trio
+import asyncio
 
 try:
     import faulthandler
@@ -434,6 +434,7 @@ def parse_args():
 
     return parser.parse_args()
 
+
 if __name__ == '__main__':
 
     options = parse_args()
@@ -447,10 +448,17 @@ if __name__ == '__main__':
         fuse_options.add('debug')
     pyfuse3.init(operations, options.mountpoint, fuse_options)
 
+    loop = asyncio.get_event_loop()
     try:
-        trio.run(pyfuse3.main)
+        loop.run_until_complete(pyfuse3.main())
     except:
-        pyfuse3.close(unmount=False)
+        print("Encountered error so will try to unmount")
+        pyfuse3.close(unmount=True)
         raise
+    else:
+        print("Unmounted: exiting cleanly with out further unmount")
+        pyfuse3.close(unmount=False)
+    finally:
+        loop.close()
 
     pyfuse3.close()

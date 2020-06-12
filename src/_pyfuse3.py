@@ -21,6 +21,7 @@ __all__ = [ 'Operations', 'async_wrapper' ]
 
 log = logging.getLogger(__name__)
 
+# Doesn this apply to asyncio as well?
 # Any top level trio coroutines (i.e., coroutines that are passed
 # to trio.run) must be pure-Python. This wrapper ensures that this
 # is the case for Cython-defined async functions.

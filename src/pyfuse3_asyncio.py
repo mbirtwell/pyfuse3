@@ -11,24 +11,9 @@ the terms of the GNU LGPL.
 '''
 
 import asyncio
-import pyfuse3
 import sys
 
 Lock = asyncio.Lock
-
-
-def enable():
-    '''Switch pyfuse3 to asyncio mode.'''
-
-    fake_trio = sys.modules['pyfuse3_asyncio']
-    fake_trio.lowlevel = fake_trio
-    pyfuse3.trio = fake_trio
-
-
-def disable():
-    '''Switch pyfuse3 to default (trio) mode.'''
-
-    pyfuse3.trio = sys.modules['trio']
 
 
 async def wait_readable(fd):

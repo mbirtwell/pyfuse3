@@ -187,24 +187,27 @@ cdef class _WorkerData:
     cdef int active_readers
 
     def __init__(self):
-        self.read_lock = trio.Lock()
+        self.read_lock = asyncio.Lock()
         self.active_readers = 0
 
     cdef get_name(self):
         self.task_serial += 1
         return 'pyfuse-%02d' % self.task_serial
 
+# TODO could be changed now that we only suport asyncio
+#  but I'd like to keep this as close to pyfuse3 as possible
+#  for now at least.
 # Delay initialization so that pyfuse3_asyncio can replace
 # the trio module.
 cdef _WorkerData worker_data
 
 async def _wait_fuse_readable():
-    #name = trio.lowlevel.current_task().name
+    #name = pyfuse3_asyncio.current_task().name
     worker_data.active_readers += 1
     #log.debug('%s: Waiting for read lock...', name)
     async with worker_data.read_lock:
         #log.debug('%s: Waiting for fuse fd to become readable...', name)
-        await trio.lowlevel.wait_readable(session_fd)
+        await pyfuse3_asyncio.wait_readable(session_fd)
 
     worker_data.active_readers -= 1
     #log.debug('%s: fuse fd readable, unparking next task.', name)
@@ -215,7 +218,7 @@ async def _session_loop(nursery, int min_tasks, int max_tasks):
     cdef int res
     cdef fuse_buf buf
 
-    name = trio.lowlevel.current_task().name
+    name = pyfuse3_asyncio.current_task().name
 
     buf.mem = NULL
     buf.size = 0

@@ -6,6 +6,7 @@ Copyright © 2013 Nikolaus Rath <Nikolaus.org>
 This file is part of pyfuse3. This work may be distributed under
 the terms of the GNU LGPL.
 '''
+import pyfuse3_asyncio
 
 cdef extern from "pyfuse3.h":
     int PLATFORM
@@ -65,7 +66,7 @@ import logging
 import os
 import os.path
 import sys
-import trio
+import asyncio
 import threading
 
 import _pyfuse3
@@ -764,7 +765,7 @@ async def main(int min_tasks=1, int max_tasks=99):
         raise RuntimeError('Need to call init() before main()')
 
     try:
-        async with trio.open_nursery() as nursery:
+        async with pyfuse3_asyncio.open_nursery() as nursery:
             worker_data.task_count = 1
             worker_data.task_serial = 1
             nursery.start_soon(_session_loop, nursery, min_tasks, max_tasks,

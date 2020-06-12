@@ -57,7 +57,7 @@ import stat as stat_m
 from pyfuse3 import FUSEError
 from os import fsencode, fsdecode
 from collections import defaultdict
-import trio
+import asyncio
 
 import faulthandler
 faulthandler.enable()
@@ -467,15 +467,19 @@ def main():
         fuse_options.add('debug')
     pyfuse3.init(operations, options.mountpoint, fuse_options)
 
+    loop = asyncio.get_event_loop()
     try:
-        log.debug('Entering main loop..')
-        trio.run(pyfuse3.main)
+        loop.run_until_complete(pyfuse3.main())
     except:
-        pyfuse3.close(unmount=False)
+        print("Encountered error so will try to unmount")
+        pyfuse3.close(unmount=True)
         raise
+    else:
+        print("Unmounted: exiting cleanly with out further unmount")
+        pyfuse3.close(unmount=False)
+    finally:
+        loop.close()
 
-    log.debug('Unmounting..')
-    pyfuse3.close()
 
 if __name__ == '__main__':
     main()

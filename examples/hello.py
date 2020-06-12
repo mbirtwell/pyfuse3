@@ -37,7 +37,7 @@ import stat
 import logging
 import errno
 import pyfuse3
-import trio
+import asyncio
 
 try:
     import faulthandler
@@ -79,7 +79,7 @@ class TestFs(pyfuse3.Operations):
     async def lookup(self, parent_inode, name, ctx=None):
         if parent_inode != pyfuse3.ROOT_INODE or name != self.hello_name:
             raise pyfuse3.FUSEError(errno.ENOENT)
-        return self.getattr(self.hello_inode)
+        return await self.getattr(self.hello_inode)
 
     async def opendir(self, inode, ctx):
         if inode != pyfuse3.ROOT_INODE:
@@ -144,13 +144,18 @@ def main():
     if options.debug_fuse:
         fuse_options.add('debug')
     pyfuse3.init(testfs, options.mountpoint, fuse_options)
+    loop = asyncio.get_event_loop()
     try:
-        trio.run(pyfuse3.main)
+        loop.run_until_complete(pyfuse3.main())
     except:
-        pyfuse3.close(unmount=False)
+        print("Encountered error so will try to unmount")
+        pyfuse3.close(unmount=True)
         raise
-
-    pyfuse3.close()
+    else:
+        print("Unmounted: exiting cleanly with out further unmount")
+        pyfuse3.close(unmount=False)
+    finally:
+        loop.close()
 
 
 if __name__ == '__main__':
