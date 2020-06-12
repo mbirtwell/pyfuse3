@@ -461,4 +461,3 @@ if __name__ == '__main__':
     finally:
         loop.close()
 
-    pyfuse3.close()

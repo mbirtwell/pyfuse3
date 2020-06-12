@@ -37,8 +37,8 @@ def name_generator(__ctr=[0]):
     __ctr[0] += 1
     return 'testfile_%d' % __ctr[0]
 
-@pytest.mark.parametrize('filename', ('hello.py', 'hello_asyncio.py'))
-def test_hello(tmpdir, filename):
+def test_hello(tmpdir):
+    filename = "hello.py"
     mnt_dir = str(tmpdir)
     cmdline = [sys.executable,
                os.path.join(basename, 'examples', filename),

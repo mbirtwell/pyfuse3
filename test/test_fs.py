@@ -241,6 +241,6 @@ def run_fs(mountpoint, cross_process):
     fuse_options.add('fsname=pyfuse3_testfs')
     pyfuse3.init(testfs, mountpoint, fuse_options)
     try:
-        asyncio.get_event_loop().run_until_complete(pyfuse3.main)
+        asyncio.get_event_loop().run_until_complete(pyfuse3.main())
     finally:
         pyfuse3.close()
